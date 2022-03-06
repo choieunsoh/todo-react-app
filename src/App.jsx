@@ -1,43 +1,48 @@
 import { useState } from 'react'
-import logo from './logo.svg'
+import uuid from 'react-uuid'
 import './App.css'
+import TodoApp from './components/TodoApp'
+import AddTask from './components/AddTask'
+import Task from './components/Task'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [tasks, setTasks] = useState([])
+
+  const createNewTask = (task) => {
+    if (task.trim() === '') {
+      alert("Task can't not be empty!")
+      return
+    }
+
+    const _tasks = [...tasks, { id: uuid(), task }]
+    setTasks(_tasks)
+  }
+
+  const removeTask = (taskId) => {
+    setTasks((prevTasks) => {
+      const index = prevTasks.findIndex((t) => t.id === taskId)
+      prevTasks.splice(index, 1)
+      return prevTasks
+    })
+  }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.jsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
+    <div className="container">
+      <TodoApp title="Todo App" />
+      <AddTask createTask={createNewTask} />
+
+      {tasks &&
+        tasks.map(({ id, task }) => {
+          return (
+            <Task
+              key={id}
+              id={id}
+              task={task}
+              delayInSeconds={5}
+              onExpired={removeTask}
+            />
+          )
+        })}
     </div>
   )
 }
